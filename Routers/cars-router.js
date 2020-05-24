@@ -17,6 +17,21 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [car] = await knex("cars").where({ id });
+    const salesInf = await knex("sales").where("carsales_id", id);
+
+    car.salesInfo = salesInf;
+
+    console.log("car: ", car, "\nsalesInf: ", salesInf);
+    res.status(200).json(car);
+  } catch (err) {
+    res.status(500).json({ errorMessage: err });
+  }
+});
+
 router.post("/", (req, res) => {
   const CarData = req.body;
   //console.log(CarData)
@@ -50,7 +65,7 @@ router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const [deleted] = await knex("cars").where({ id });
-    const car = await knex("cars").del().where({ id });
+    const car = await knex("cars").where('id',id).del();
     if (car > 0) {
       res.status(200).json(deleted);
     } else {
